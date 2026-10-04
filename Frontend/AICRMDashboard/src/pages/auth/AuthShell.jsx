@@ -10,14 +10,14 @@ export function AuthShell({ children }) {
         <div className="absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-brand-600/50 blur-3xl" />
 
         <div className="relative flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/15">
+          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-lime-400 text-brand-900">
             <Sparkles className="h-5 w-5" />
           </div>
-          <span className="font-display text-lg font-bold">Time To Program CRM</span>
+          <span className="text-lg font-semibold">Time To Program CRM</span>
         </div>
 
         <div className="relative">
-          <h2 className="font-display text-4xl font-bold leading-tight">
+          <h2 className="text-4xl font-semibold leading-tight">
             Close more deals with an AI co-pilot in your pipeline.
           </h2>
           <p className="mt-4 max-w-md text-white/70">
@@ -32,7 +32,7 @@ export function AuthShell({ children }) {
               { icon: ShieldCheck, text: "Secure JWT auth, your data stays yours" },
             ].map(({ icon: Icon, text }) => (
               <div key={text} className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/15">
+                <div className="flex h-9 w-9 items-center justify-center rounded-md bg-white/10">
                   <Icon className="h-[18px] w-[18px]" />
                 </div>
                 <span className="text-sm text-white/90">{text}</span>

@@ -61,7 +61,7 @@ export function AiInsightsCard() {
         </div>
       ) : (
         <div className="mt-4 flex-1 space-y-4 overflow-y-auto no-scrollbar">
-          <div className="rounded-2xl bg-brand-50 p-4">
+          <div className="rounded-lg bg-brand-50 p-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium uppercase tracking-wide text-brand-700">
                 Health score

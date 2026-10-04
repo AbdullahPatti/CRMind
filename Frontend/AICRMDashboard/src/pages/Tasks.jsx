@@ -127,8 +127,8 @@ function TaskFormDialog({ open, onClose, task, leads, onSaved }) {
   const onSubmit = async (values) => {
     const payload = {
       title:       values.title.trim(),
-      description: values.description?.trim() || undefined,
-      dueDate:     values.dueDate || undefined,
+      description: values.description?.trim() || "",
+      dueDate:     values.dueDate || null,
       status:      values.status,
       priority:    values.priority,
       relatedLead: values.relatedLead || null,

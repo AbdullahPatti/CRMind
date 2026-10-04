@@ -14,7 +14,7 @@ export function ConfirmDialog({
   return (
     <Dialog open={open} onClose={onClose} className="max-w-md">
       <div className="flex flex-col items-center text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-600">
+        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
           <AlertTriangle className="h-6 w-6" />
         </div>
         <h3 className="mt-4 text-lg font-semibold text-ink">{title}</h3>

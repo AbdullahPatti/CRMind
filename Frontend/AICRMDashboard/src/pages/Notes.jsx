@@ -29,7 +29,7 @@ import {
   DropdownItem,
   Spinner,
 } from "../components/ui";
-import { notesApi, leadsApi } from "../lib/services";
+import { notesApi, leadsApi, contactsApi } from "../lib/services";
 import { relative } from "../lib/format";
 import { cn } from "../lib/utils";
 
@@ -38,7 +38,7 @@ function StatTile({ icon: Icon, label, value, tint }) {
   return (
     <Card className="p-4">
       <div className="flex items-center gap-3">
-        <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl", tint)}>
+        <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg", tint)}>
           <Icon className="h-5 w-5" />
         </div>
         <div className="min-w-0">
@@ -56,7 +56,7 @@ function FilterChip({ label, count, active, onClick }) {
     <button
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm font-medium transition",
+        "inline-flex items-center gap-2 rounded-md border px-3.5 py-1.5 text-sm font-medium transition",
         active
           ? "border-transparent bg-brand-600 text-white shadow-sm"
           : "border-line bg-surface text-ink-soft hover:bg-surface-muted hover:text-ink"
@@ -83,7 +83,7 @@ function NoteCard({ note, onEdit, onDelete, onTogglePin }) {
   return (
     <div
       className={cn(
-        "break-inside-avoid relative flex flex-col gap-3 overflow-hidden rounded-2xl bg-surface p-5",
+        "break-inside-avoid relative flex flex-col gap-3 overflow-hidden rounded-lg bg-surface p-5",
         "border border-line shadow-(--shadow-card) transition hover:shadow-(--shadow-pop)",
         note.pinned && "ring-1 ring-brand-200"
       )}
@@ -154,7 +154,7 @@ function NoteCard({ note, onEdit, onDelete, onTogglePin }) {
 }
 
 // ── NoteFormDialog ─────────────────────────────────────────────────────────────
-function NoteFormDialog({ open, onClose, note, leads, onSaved }) {
+function NoteFormDialog({ open, onClose, note, leads, contacts, onSaved }) {
   const isEditing = Boolean(note);
 
   const {
@@ -170,6 +170,7 @@ function NoteFormDialog({ open, onClose, note, leads, onSaved }) {
       reset({
         content: note?.content ?? "",
         lead: note?.lead?._id ?? "",
+        contact: note?.contact?._id ?? "",
         pinned: note?.pinned ?? false,
       });
     }
@@ -179,8 +180,8 @@ function NoteFormDialog({ open, onClose, note, leads, onSaved }) {
     const payload = {
       content: values.content,
       pinned: values.pinned,
-      // Pass lead id only if selected; undefined removes the field on update
-      lead: values.lead || undefined,
+      lead: values.lead || null,
+      contact: values.contact || null,
     };
 
     try {
@@ -228,6 +229,18 @@ function NoteFormDialog({ open, onClose, note, leads, onSaved }) {
           </Select>
         </Field>
 
+        {/* Contact picker */}
+        <Field label="Link to contact">
+          <Select {...register("contact")}>
+            <option value="">No linked contact</option>
+            {contacts.map((c) => (
+              <option key={c._id} value={c._id}>
+                {c.name}{c.company ? ` — ${c.company}` : ""}
+              </option>
+            ))}
+          </Select>
+        </Field>
+
         {/* Pinned pill toggle */}
         <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-line bg-surface-muted/40 px-4 py-3 transition hover:bg-surface-muted/70">
           <div className="relative flex-shrink-0">
@@ -261,6 +274,7 @@ export default function Notes() {
   // ── Data ─────────────────────────────────────────────────────────────────
   const [notes, setNotes] = useState(null);  // null = loading
   const [leads, setLeads] = useState([]);    // lead picker options
+  const [contacts, setContacts] = useState([]); // contact picker options
 
   // ── UI state ──────────────────────────────────────────────────────────────
   const [search, setSearch] = useState("");
@@ -279,6 +293,7 @@ export default function Notes() {
   useEffect(() => {
     load();
     leadsApi.list().then((res) => setLeads(res.leads ?? [])).catch(() => {});
+    contactsApi.list().then((res) => setContacts(res.contacts ?? [])).catch(() => {});
   }, []);
 
   // ── KPI counts (stable — independent of active filter) ───────────────────
@@ -399,7 +414,7 @@ export default function Notes() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search notes…"
-            className="h-10 w-full rounded-xl border border-line bg-surface pl-10 pr-4 text-sm text-ink placeholder:text-ink-soft/60 transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+            className="h-10 w-full rounded-md border border-line bg-surface pl-10 pr-4 text-sm text-ink placeholder:text-ink-soft/60 transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
           />
         </div>
 
@@ -490,6 +505,7 @@ export default function Notes() {
         onClose={() => setFormOpen(false)}
         note={editing}
         leads={leads}
+        contacts={contacts}
         onSaved={handleSaved}
       />
 

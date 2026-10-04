@@ -40,4 +40,12 @@ const taskSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+// Keep completedAt in sync with status.
+taskSchema.pre("save", function (next) {
+  if (this.isModified("status")) {
+    this.completedAt = this.status === "Completed" ? this.completedAt || new Date() : null;
+  }
+  next();
+});
+
 export const Task = mongoose.model("Task", taskSchema);

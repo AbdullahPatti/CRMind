@@ -66,7 +66,7 @@ export function LeadDrawer({ open, onClose, lead, onEdit, onDelete }) {
         </div>
 
         {/* Value */}
-        <div className="mt-5 rounded-2xl bg-surface p-4 shadow-[var(--shadow-soft)]">
+        <div className="mt-5 rounded-lg bg-surface p-4 shadow-[var(--shadow-soft)]">
           <p className="text-xs uppercase tracking-wide text-ink-soft">Deal value</p>
           <p className="mt-1 text-2xl font-bold text-ink">{currency(lead.value)}</p>
         </div>
@@ -79,7 +79,7 @@ export function LeadDrawer({ open, onClose, lead, onEdit, onDelete }) {
         </div>
 
         {lead.notes && (
-          <div className="mt-4 rounded-2xl bg-surface p-4 shadow-[var(--shadow-soft)]">
+          <div className="mt-4 rounded-lg bg-surface p-4 shadow-[var(--shadow-soft)]">
             <p className="text-xs font-medium uppercase tracking-wide text-ink-soft">
               Notes
             </p>
@@ -88,7 +88,7 @@ export function LeadDrawer({ open, onClose, lead, onEdit, onDelete }) {
         )}
 
         {/* AI summary */}
-        <div className="mt-5 rounded-2xl border border-brand-100 bg-brand-50/60 p-4">
+        <div className="mt-5 rounded-lg border border-brand-100 bg-brand-50/60 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm font-semibold text-brand-800">
               <Sparkles className="h-4 w-4" /> AI Lead Summary

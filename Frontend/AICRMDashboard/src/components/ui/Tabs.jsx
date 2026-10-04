@@ -8,7 +8,7 @@ export function Tabs({ tabs, value, onChange, className }) {
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-1 rounded-full bg-surface-muted p-1",
+        "inline-flex items-center gap-1 rounded-md border border-line bg-surface-muted p-0.5",
         className
       )}
     >
@@ -19,7 +19,7 @@ export function Tabs({ tabs, value, onChange, className }) {
             key={t.value}
             onClick={() => onChange(t.value)}
             className={cn(
-              "rounded-full px-4 py-1.5 text-sm font-medium transition-all",
+              "rounded-md px-4 py-1.5 text-sm font-medium transition-all",
               active
                 ? "bg-brand-600 text-white shadow-sm"
                 : "text-ink-soft hover:text-ink"

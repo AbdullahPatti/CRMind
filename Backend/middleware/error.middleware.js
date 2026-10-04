@@ -1,4 +1,4 @@
-import { ApiError } from "../utils/ApiErrorr.js";
+import { ApiError } from "../utils/ApiError.js";
 
 export const notFound = (req, res, next) => {
     next(new ApiError(404, `Route ${req.method} ${req.originalUrl} not found`));
@@ -15,7 +15,7 @@ export const errorHandler = (err, req, res, next) => {
 
     if(err.code === 11000) {
         statusCode = 409;
-        const field = Object.keys(err.keyValue || {}[0] || "field");
+        const field = Object.keys(err.keyValue || {})[0] || "field";
         message = `Duplicate field value entered for ${field}`;
     }
 

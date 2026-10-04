@@ -3,6 +3,7 @@ import {
   DndContext,
   DragOverlay,
   PointerSensor,
+  KeyboardSensor,
   useSensor,
   useSensors,
   closestCorners,
@@ -12,6 +13,7 @@ import {
   SortableContext,
   useSortable,
   arrayMove,
+  sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -36,7 +38,8 @@ export default function Pipeline() {
   const [activeId, setActiveId] = useState(null);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } })
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
   useEffect(() => {
@@ -69,8 +72,7 @@ export default function Pipeline() {
       const toItems = [...prev[to]];
       const idx = fromItems.findIndex((l) => l._id === active.id);
       if (idx === -1) return prev;
-      const [moved] = fromItems.splice(idx, 1);
-      moved.status = to;
+      const moved = { ...fromItems.splice(idx, 1)[0], status: to };
       // Insert near the hovered card (or append if hovering the column).
       const overIdx = toItems.findIndex((l) => l._id === over.id);
       toItems.splice(overIdx === -1 ? toItems.length : overIdx, 0, moved);
@@ -85,24 +87,19 @@ export default function Pipeline() {
     const container = findContainer(over.id);
     if (!container) return;
 
-    setBoard((prev) => {
-      const items = [...prev[container]];
-      const oldIdx = items.findIndex((l) => l._id === active.id);
-      const newIdx = items.findIndex((l) => l._id === over.id);
-      const reordered =
-        oldIdx !== -1 && newIdx !== -1 ? arrayMove(items, oldIdx, newIdx) : items;
-      const next = { ...prev, [container]: reordered };
+    const items = [...board[container]];
+    const oldIdx = items.findIndex((l) => l._id === active.id);
+    const newIdx = items.findIndex((l) => l._id === over.id);
+    const reordered =
+      oldIdx !== -1 && newIdx !== -1 ? arrayMove(items, oldIdx, newIdx) : items;
+    const next = { ...board, [container]: reordered };
+    setBoard(next);
 
-      // Build the persistence payload across all affected columns.
-      const updates = [];
-      PIPELINE_STAGES.forEach((stage) => {
-        next[stage].forEach((l, order) =>
-          updates.push({ id: l._id, status: stage, order })
-        );
-      });
-      leadsApi.reorder(updates).catch(() => toast.error("Could not save pipeline"));
-      return next;
-    });
+    // Persist stage + order for every card across all columns.
+    const updates = PIPELINE_STAGES.flatMap((stage) =>
+      next[stage].map((l, order) => ({ id: l._id, status: stage, order }))
+    );
+    leadsApi.reorder(updates).catch(() => toast.error("Could not save pipeline"));
   };
 
   /* ── KPI computations ─────────────────────────────────────────────── */
@@ -176,7 +173,7 @@ function StatTile({ icon: Icon, label, value, tint }) {
   return (
     <Card className="p-4">
       <div className="flex items-center gap-3">
-        <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl", tint)}>
+        <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg", tint)}>
           <Icon className="h-5 w-5" />
         </div>
         <div className="min-w-0">
@@ -217,7 +214,7 @@ function Column({ stage, leads }) {
       <div
         ref={setNodeRef}
         className={cn(
-          "flex min-h-[60vh] flex-1 flex-col gap-3 rounded-3xl border-2 border-dashed border-transparent bg-surface-muted/60 p-3 transition",
+          "flex min-h-[60vh] flex-1 flex-col gap-3 rounded-xl border-2 border-dashed border-transparent bg-surface-muted/60 p-3 transition",
           isOver && "border-brand-300 bg-brand-50/60"
         )}
       >
@@ -277,7 +274,7 @@ function LeadCard({ lead, dragHandle, overlay }) {
   return (
     <div
       className={cn(
-        "group rounded-2xl bg-surface p-3.5 shadow-[var(--shadow-soft)] transition border border-line/60",
+        "group rounded-lg bg-surface p-3.5 shadow-[var(--shadow-soft)] transition border border-line/60",
         overlay ? "shadow-[var(--shadow-pop)] rotate-2" : "hover:shadow-[var(--shadow-card)]"
       )}
     >

@@ -281,7 +281,7 @@ export default function Contacts() {
             value={filters.search}
             onChange={(e) => setFilters({ ...filters, search: e.target.value })}
             placeholder="Search by name, email, or company…"
-            className="h-10 w-full rounded-xl border border-line bg-surface pl-10 pr-4 text-sm text-ink placeholder:text-ink-soft/60 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition"
+            className="h-10 w-full rounded-md border border-line bg-surface pl-10 pr-4 text-sm text-ink placeholder:text-ink-soft/60 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition"
           />
         </div>
 
@@ -439,7 +439,7 @@ function StatTile({ icon: Icon, label, value, tint }) {
       <div className="flex items-center gap-3">
         <div
           className={cn(
-            "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl",
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
             tint
           )}
         >
@@ -462,7 +462,7 @@ function TagChip({ label, count, active, onClick }) {
     <button
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm font-medium transition",
+        "inline-flex items-center gap-2 rounded-md border px-3.5 py-1.5 text-sm font-medium transition",
         active
           ? "border-transparent bg-brand-600 text-white shadow-sm"
           : "border-line bg-surface text-ink-soft hover:text-ink hover:bg-surface-muted"
@@ -490,7 +490,7 @@ function ViewToggle({ view, onChange }) {
     { value: "table", icon: Table2, label: "Table view" },
   ];
   return (
-    <div className="flex items-center gap-1 rounded-full border border-line bg-surface-muted p-1">
+    <div className="flex items-center gap-1 rounded-md border border-line bg-surface-muted p-1">
       {options.map(({ value, icon: Icon, label }) => (
         <button
           key={value}
@@ -498,7 +498,7 @@ function ViewToggle({ view, onChange }) {
           title={label}
           aria-label={label}
           className={cn(
-            "flex h-8 w-8 items-center justify-center rounded-full transition",
+            "flex h-8 w-8 items-center justify-center rounded transition",
             view === value
               ? "bg-surface text-ink shadow-sm"
               : "text-ink-soft hover:text-ink"
@@ -528,7 +528,7 @@ function ContactCard({
     <div
       data-flip-id={flipId}
       onClick={onOpen}
-      className="relative cursor-pointer rounded-2xl border border-line bg-surface p-5 shadow-(--shadow-card) transition-all duration-200 hover:-translate-y-0.5 hover:shadow-(--shadow-pop)"
+      className="relative cursor-pointer rounded-lg border border-line bg-surface p-5 shadow-(--shadow-card) transition-all duration-200 hover:-translate-y-0.5 hover:shadow-(--shadow-pop)"
     >
       {/* Favorite star — top right, stopPropagation so card click doesn't fire */}
       <button
@@ -767,7 +767,7 @@ function ContactDrawer({ open, contact, onClose, onEdit, onDelete }) {
         </div>
 
         {/* Contact fields */}
-        <div className="rounded-2xl border border-line divide-y divide-line">
+        <div className="rounded-lg border border-line divide-y divide-line">
           {contact.email && (
             <DrawerRow icon={<Mail className="h-4 w-4" />} label="Email">
               <a

@@ -15,7 +15,7 @@ createRoot(document.getElementById("root")).render(
         <Toaster
           position="top-right"
           richColors
-          toastOptions={{ style: { borderRadius: "14px" } }}
+          toastOptions={{ style: { borderRadius: "6px", fontFamily: "var(--font-sans)" } }}
         />
       </AuthProvider>
     </BrowserRouter>

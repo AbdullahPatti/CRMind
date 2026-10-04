@@ -88,7 +88,7 @@ function ProfileCard({ user, updateUser }) {
 
       <CardContent className="pt-5">
         {/* Avatar preview row */}
-        <div className="mb-6 flex items-center gap-4 rounded-2xl border border-line bg-surface-muted px-4 py-3">
+        <div className="mb-6 flex items-center gap-4 rounded-lg border border-line bg-surface-muted px-4 py-3">
           <Avatar name={user?.name} src={user?.avatar} size="lg" />
           <div>
             <p className="text-sm font-semibold text-ink">{user?.name}</p>
@@ -294,7 +294,7 @@ function AiIntegrationCard() {
 
             {/* Helpful setup note when the key is missing */}
             {!status.configured && (
-              <div className="rounded-2xl border border-amber-200/60 bg-amber-50/60 px-4 py-3.5 text-sm text-amber-800">
+              <div className="rounded-lg border border-amber-200/60 bg-amber-50/60 px-4 py-3.5 text-sm text-amber-800">
                 <p className="font-medium mb-1">Connect your Gemini key</p>
                 <p className="text-amber-700/80 leading-relaxed">
                   Add{" "}
@@ -339,7 +339,7 @@ function AccountCard({ user, logout }) {
       <CardContent className="pt-5">
         <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Role */}
-          <div className="rounded-2xl border border-line bg-surface-muted px-4 py-3">
+          <div className="rounded-lg border border-line bg-surface-muted px-4 py-3">
             <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-ink-soft">
               Role
             </p>
@@ -349,7 +349,7 @@ function AccountCard({ user, logout }) {
           </div>
 
           {/* Member since */}
-          <div className="rounded-2xl border border-line bg-surface-muted px-4 py-3">
+          <div className="rounded-lg border border-line bg-surface-muted px-4 py-3">
             <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-ink-soft">
               Member since
             </p>

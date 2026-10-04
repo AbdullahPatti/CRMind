@@ -23,7 +23,7 @@ export function Dropdown({ trigger, children, align = "right", className }) {
       {open && (
         <div
           className={cn(
-            "absolute z-40 mt-2 min-w-[12rem] rounded-2xl border border-line bg-surface p-1.5 shadow-[var(--shadow-pop)] animate-fade-up",
+            "absolute z-40 mt-2 min-w-[12rem] rounded-lg border border-line bg-surface p-1.5 shadow-[var(--shadow-pop)] animate-fade-up",
             align === "right" ? "right-0" : "left-0",
             className
           )}
@@ -40,7 +40,7 @@ export function DropdownItem({ className, danger, children, ...props }) {
   return (
     <button
       className={cn(
-        "flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-ink transition hover:bg-surface-muted",
+        "flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-ink transition hover:bg-surface-muted",
         danger && "text-rose-600 hover:bg-rose-50",
         className
       )}

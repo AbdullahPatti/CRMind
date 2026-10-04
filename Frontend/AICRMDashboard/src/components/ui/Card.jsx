@@ -8,7 +8,7 @@ export function Card({ className, ...props }) {
   return (
     <div
       className={cn(
-        "bg-surface rounded-3xl border border-line shadow-[var(--shadow-card)]",
+        "bg-surface rounded-xl border border-line shadow-[var(--shadow-card)]",
         className
       )}
       {...props}
@@ -58,7 +58,7 @@ export function SectionHeading({
     <div className={cn("flex items-start justify-between gap-4", className)}>
       <div className="flex items-center gap-3">
         {Icon && (
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-surface-muted text-ink-soft">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-muted text-ink-soft">
             <Icon className="h-5 w-5" />
           </div>
         )}
@@ -72,7 +72,7 @@ export function SectionHeading({
           <Link
             to={to}
             aria-label="Open"
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-ink-soft transition hover:bg-surface-muted hover:text-ink active:scale-95"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-line bg-surface text-ink-soft transition hover:bg-surface-muted hover:text-ink active:scale-95"
           >
             <ArrowUpRight className="h-[18px] w-[18px]" />
           </Link>

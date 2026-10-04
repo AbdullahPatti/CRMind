@@ -1,42 +1,59 @@
 @import "tailwindcss";
 
 /* ─────────────────────────────────────────────────────────────
-   Quixotic CRM — design tokens (Tailwind v4 @theme)
-   A muted "fintech sage" palette inspired by the reference UI:
-   soft gray canvas, white cards, forest-green brand accent.
+   TTP CRM — design tokens (Tailwind v4 @theme)
+   Formal enterprise look: almond/khaki canvas, warm paper cards,
+   deep evergreen primary, acid lime + pigeon as sparing accents.
    ───────────────────────────────────────────────────────────── */
 @theme {
-  /* Brand sky-blue scale */
-  --color-brand-50: #f0f9ff;
-  --color-brand-100: #e0f2fe;
-  --color-brand-200: #bae6fd;
-  --color-brand-300: #7dd3fc;
-  --color-brand-400: #38bdf8;
-  --color-brand-500: #0ea5e9;
-  --color-brand-600: #0284c7;
-  --color-brand-700: #0369a1;
-  --color-brand-800: #075985;
-  --color-brand-900: #0c4a6e;
+  /* Primary — deep evergreen */
+  --color-brand-50: #eef3ef;
+  --color-brand-100: #d6e2da;
+  --color-brand-200: #adc5b5;
+  --color-brand-300: #7fa38d;
+  --color-brand-400: #4f7c64;
+  --color-brand-500: #2f5e4a;
+  --color-brand-600: #264e3d;
+  --color-brand-700: #1f4032;
+  --color-brand-800: #183328;
+  --color-brand-900: #12271f;
 
-  /* Semantic surfaces — white canvas, cards defined by a hairline + shadow */
-  --color-canvas: #ffffff;
-  --color-surface: #ffffff;
-  --color-surface-muted: #f1f5f9;
-  --color-ink: #0f172a;
-  --color-ink-soft: #64748b;
-  --color-line: #e8eef3;
+  /* Accent — acid lime (highlights, peaks, active markers only) */
+  --color-lime-50: #f6fbdc;
+  --color-lime-100: #ecf6b5;
+  --color-lime-300: #ddf27a;
+  --color-lime-400: #cbea3f;
+  --color-lime-500: #b5d420;
+  --color-lime-600: #8fa815;
+  --color-lime-700: #5e6e0e;
 
-  /* Typography */
-  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-display: "Sora", "Inter", system-ui, sans-serif;
+  /* Accent — pigeon blue-grey (secondary series, neutral states) */
+  --color-pigeon-50: #f1f3f6;
+  --color-pigeon-100: #e2e6ec;
+  --color-pigeon-200: #c7ced8;
+  --color-pigeon-300: #a6b0bf;
+  --color-pigeon-400: #8994a6;
+  --color-pigeon-500: #6e7a8e;
+  --color-pigeon-600: #586375;
+  --color-pigeon-700: #454e5d;
 
-  /* Radii & shadows — soft, rounded SaaS feel */
-  --radius-xl: 1rem;
-  --radius-2xl: 1.5rem;
-  --radius-3xl: 2rem;
-  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px -12px rgba(16, 24, 40, 0.12);
-  --shadow-soft: 0 1px 3px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04);
-  --shadow-pop: 0 12px 40px -12px rgba(16, 24, 40, 0.25);
+  /* Semantic surfaces — almond canvas, warm paper cards */
+  --color-canvas: #ece3d0;
+  --color-surface: #fbf8f1;
+  --color-surface-muted: #f3ecdd;
+  --color-ink: #22241f;
+  --color-ink-soft: #6b6656;
+  --color-line: #dcd1ba;
+
+  /* Typography — IBM Plex: neutral, corporate, excellent numerals */
+  --font-sans: "IBM Plex Sans", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "IBM Plex Sans", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+
+  /* Shadows — restrained, enterprise depth */
+  --shadow-card: 0 1px 2px rgba(60, 48, 20, 0.06);
+  --shadow-soft: 0 1px 2px rgba(60, 48, 20, 0.05);
+  --shadow-pop: 0 12px 32px -8px rgba(40, 32, 10, 0.25);
 }
 
 /* Base resets ─────────────────────────────────────────────── */
@@ -63,7 +80,16 @@ body {
 /* Headings use the display font for a more premium, branded feel */
 h1, h2, h3, h4 {
   font-family: var(--font-display);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
+}
+
+/* Aligned figures in tables, KPIs and charts */
+body {
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: var(--color-brand-200);
 }
 
 /* Custom slim scrollbars to match the polished aesthetic */
@@ -72,13 +98,13 @@ h1, h2, h3, h4 {
   height: 10px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d4d8d5;
+  background: #cbbfa4;
   border-radius: 999px;
   border: 3px solid transparent;
   background-clip: content-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #b9bfba;
+  background: #a99c80;
   background-clip: content-box;
 }
 
@@ -86,23 +112,15 @@ h1, h2, h3, h4 {
 @layer utilities {
   .card {
     background: var(--color-surface);
-    border-radius: var(--radius-2xl);
+    border-radius: var(--radius-lg);
     box-shadow: var(--shadow-card);
   }
-  /* Sky-blue brand gradient used for primary surfaces (buttons, CTAs, hero). */
+  /* Solid brand fill for primary surfaces (buttons, CTAs). */
   .brand-gradient {
-    background-image: linear-gradient(
-      135deg,
-      var(--color-brand-400),
-      var(--color-brand-600)
-    );
+    background-color: var(--color-brand-600);
   }
   .brand-gradient-hover:hover {
-    background-image: linear-gradient(
-      135deg,
-      var(--color-brand-500),
-      var(--color-brand-700)
-    );
+    background-color: var(--color-brand-700);
   }
   .no-scrollbar::-webkit-scrollbar {
     display: none;

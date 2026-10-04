@@ -31,7 +31,7 @@ export function Dialog({ open, onClose, title, description, children, className 
         role="dialog"
         aria-modal="true"
         className={cn(
-          "relative z-10 w-full max-w-lg bg-surface rounded-3xl shadow-[var(--shadow-pop)] animate-fade-up max-h-[90vh] overflow-y-auto no-scrollbar",
+          "relative z-10 w-full max-w-lg bg-surface rounded-xl shadow-[var(--shadow-pop)] animate-fade-up max-h-[90vh] overflow-y-auto no-scrollbar",
           className
         )}
       >

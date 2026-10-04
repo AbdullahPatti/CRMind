@@ -15,7 +15,7 @@ export function IconButton({ className, variant = "outline", children, ...props 
   return (
     <button
       className={cn(
-        "inline-flex h-10 w-10 items-center justify-center rounded-full transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/30",
+        "inline-flex h-10 w-10 items-center justify-center rounded-md transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/30",
         variants[variant],
         className
       )}

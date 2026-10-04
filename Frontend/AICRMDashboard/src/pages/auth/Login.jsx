@@ -78,7 +78,7 @@ export default function Login() {
 
       <button
         onClick={useDemo}
-        className="mt-3 w-full rounded-full border border-dashed border-brand-300 py-2.5 text-sm font-medium text-brand-700 transition hover:bg-brand-50"
+        className="mt-3 w-full rounded-md border border-dashed border-brand-300 py-2.5 text-sm font-medium text-brand-700 transition hover:bg-brand-50"
       >
         Try the demo account
       </button>

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Plus,
   Search,
@@ -47,7 +48,15 @@ import { toast } from "sonner";
 
 export default function Leads() {
   const [leads, setLeads] = useState(null);
+  const [searchParams] = useSearchParams();
   const [filters, setFilters] = useState({ status: "", priority: "", source: "", search: "" });
+  // Top-bar search lands here as ?q=… (synced during render, not in an effect).
+  const urlQuery = searchParams.get("q");
+  const [syncedQuery, setSyncedQuery] = useState(null);
+  if (urlQuery !== null && urlQuery !== syncedQuery) {
+    setSyncedQuery(urlQuery);
+    setFilters((f) => ({ ...f, search: urlQuery }));
+  }
   const [sort, setSort] = useState({ key: "updatedAt", dir: "desc" });
   const [selected, setSelected] = useState(() => new Set());
   const [view, setView] = useState("table"); // "table" | "grid"
@@ -278,7 +287,7 @@ export default function Leads() {
               value={filters.search}
               onChange={(e) => setFilters({ ...filters, search: e.target.value })}
               placeholder="Search by name, company or email…"
-              className="h-10 w-full rounded-xl border border-line bg-surface pl-10 pr-4 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+              className="h-10 w-full rounded-md border border-line bg-surface pl-10 pr-4 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
             />
           </div>
           <div className="grid grid-cols-2 gap-2 lg:flex">
@@ -474,7 +483,7 @@ export default function Leads() {
 
       {/* Floating bulk action bar */}
       {selected.size > 0 && (
-        <div className="fixed bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-full border border-line bg-surface px-3 py-2 shadow-[var(--shadow-pop)] animate-fade-up">
+        <div className="fixed bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-lg border border-line bg-surface px-3 py-2 shadow-[var(--shadow-pop)] animate-fade-up">
           <span className="pl-2 text-sm font-medium text-ink">
             {selected.size} selected
           </span>
@@ -531,7 +540,7 @@ function ViewToggle({ view, onChange }) {
     { value: "grid", icon: LayoutGrid, label: "Card view" },
   ];
   return (
-    <div className="flex items-center gap-1 rounded-full border border-line bg-surface-muted p-1">
+    <div className="flex items-center gap-1 rounded-md border border-line bg-surface-muted p-1">
       {options.map(({ value, icon: Icon, label }) => (
         <button
           key={value}
@@ -539,7 +548,7 @@ function ViewToggle({ view, onChange }) {
           title={label}
           aria-label={label}
           className={cn(
-            "flex h-8 w-8 items-center justify-center rounded-full transition",
+            "flex h-8 w-8 items-center justify-center rounded transition",
             view === value ? "bg-surface text-ink shadow-sm" : "text-ink-soft hover:text-ink"
           )}
         >
@@ -557,7 +566,7 @@ function LeadGridCard({ lead, selected, onToggle, onOpen, onEdit, onDelete }) {
     <div
       onClick={onOpen}
       className={cn(
-        "group relative cursor-pointer rounded-2xl border bg-surface p-5 shadow-[var(--shadow-card)] transition hover:shadow-[var(--shadow-pop)]",
+        "group relative cursor-pointer rounded-lg border bg-surface p-5 shadow-[var(--shadow-card)] transition hover:shadow-[var(--shadow-pop)]",
         selected ? "border-brand-400 ring-2 ring-brand-500/30" : "border-line"
       )}
     >
@@ -623,7 +632,7 @@ function StatTile({ icon: Icon, label, value, tint }) {
   return (
     <Card className="p-4">
       <div className="flex items-center gap-3">
-        <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl", tint)}>
+        <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg", tint)}>
           <Icon className="h-5 w-5" />
         </div>
         <div className="min-w-0">
@@ -640,7 +649,7 @@ function StageChip({ label, count, dot, active, onClick }) {
     <button
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm font-medium transition",
+        "inline-flex items-center gap-2 rounded-md border px-3.5 py-1.5 text-sm font-medium transition",
         active
           ? "border-transparent bg-brand-600 text-white shadow-sm"
           : "border-line bg-surface text-ink-soft hover:text-ink hover:bg-surface-muted"

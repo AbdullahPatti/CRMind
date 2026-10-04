@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  CreditCard,
+  BarChart3,
+  Wallet,
+  Users,
   CalendarRange,
   Plus,
-  ArrowUpRight,
   CheckCircle2,
   Target,
   Layers,
@@ -30,7 +31,7 @@ import {
   Pie,
 } from "recharts";
 import { format, isPast } from "date-fns";
-import { HeroCard } from "../components/dashboard/HeroCard";
+import { StatCard } from "../components/common/StatCard";
 import { AiInsightsCard } from "../components/ai/AiInsightsCard";
 import {
   Card,
@@ -46,8 +47,18 @@ import { STAGE_STYLES, PRIORITY_STYLES } from "../lib/constants";
 import { useAuth } from "../context/AuthContext";
 import { cn } from "../lib/utils";
 
-/* Donut palette — sky-blue family used for the "Leads by Source" chart. */
-const SOURCE_COLORS = ["#0ea5e9", "#38bdf8", "#0369a1", "#7dd3fc", "#0284c7", "#bae6fd"];
+/* Chart colors — mirror the @theme tokens in index.css (Recharts needs raw values). */
+const C = {
+  brand: "#2f5e4a",
+  brandDark: "#183328",
+  brandSoft: "#adc5b5",
+  lime: "#b5d420",
+  pigeon: "#8994a6",
+  grid: "#dcd1ba",
+  tick: "#6b6656",
+  hover: "#f3ecdd",
+};
+const SOURCE_COLORS = [C.brand, C.pigeon, C.lime, "#b8a77a", C.brandSoft, "#454e5d"];
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -66,139 +77,138 @@ export default function Dashboard() {
 
   if (data === null) return <DashboardSkeleton />;
   const stats = data?.stats || {};
+  const trend = data?.trend || [];
 
-  // A friendly trailing date-range label for the header pill.
+  // Month-over-month change in new leads, for the KPI chip.
+  const prevLeads = trend.at(-2)?.leads ?? 0;
+  const lastLeads = trend.at(-1)?.leads ?? 0;
+  const leadTrend = prevLeads ? Math.round(((lastLeads - prevLeads) / prevLeads) * 100) : null;
+
   const today = new Date();
   const start = new Date(today.getFullYear(), today.getMonth() - 5, 1);
-  const rangeLabel = `${format(start, "dd MMM")} – ${format(today, "dd MMM, yyyy")}`;
+  const rangeLabel = `${format(start, "dd MMM")} – ${format(today, "dd MMM yyyy")}`;
+  const hour = today.getHours();
+  const greeting = hour < 12 ? "morning" : hour < 18 ? "afternoon" : "evening";
 
   return (
     <div className="space-y-6">
       {/* Title row */}
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink sm:text-[2.5rem]">
-          Welcome Back, <span className="text-ink-soft">{user?.name?.split(" ")[0]}</span>
-        </h1>
-        <div className="flex items-center gap-3">
-          <div className="hidden items-center gap-2 rounded-full bg-surface px-4 py-2.5 text-sm font-medium text-ink-soft shadow-[var(--shadow-soft)] sm:flex">
+      <div className="flex flex-col gap-4 border-b border-line pb-5 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand-600">Sales Overview</p>
+          <h1 className="mt-1 text-2xl font-semibold text-ink">
+            Good {greeting}, {user?.name?.split(" ")[0]}
+          </h1>
+          <p className="mt-1 text-sm text-ink-soft">Here is how your pipeline is performing.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="hidden h-10 items-center gap-2 rounded-md border border-line bg-surface px-3.5 text-sm text-ink-soft sm:flex">
             <CalendarRange className="h-4 w-4" />
             {rangeLabel}
           </div>
           <Link
-            to="/leads"
-            className="brand-gradient brand-gradient-hover inline-flex h-11 items-center gap-2 rounded-full px-5 text-sm font-semibold text-white shadow-sm transition"
+            to="/tasks"
+            className="inline-flex h-10 items-center gap-2 rounded-md border border-line bg-surface px-4 text-sm font-medium text-ink transition hover:bg-surface-muted"
           >
-            <Plus className="h-4 w-4" /> Add New Lead
+            <CheckCircle2 className="h-4 w-4" /> New Task
+          </Link>
+          <Link
+            to="/leads"
+            className="brand-gradient brand-gradient-hover inline-flex h-10 items-center gap-2 rounded-md px-4 text-sm font-semibold text-white transition"
+          >
+            <Plus className="h-4 w-4" /> Add Lead
           </Link>
         </div>
       </div>
 
-      {/* Balanced 3-column composition — cards distributed so the columns end
-          at roughly the same height, leaving no large vertical gaps. */}
-      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-12">
-        {/* ── Left column ───────────────────────────────── */}
-        <div className="space-y-5 lg:col-span-3">
-          <HeroCard value={stats.pipelineValue} />
+      {/* KPI strip */}
+      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+        <StatCard
+          label="Pipeline value"
+          value={currency(stats.pipelineValue, { compact: true })}
+          icon={Wallet}
+          hint="open opportunities"
+          accent
+        />
+        <StatCard
+          label="Revenue won"
+          value={currency(stats.revenueWon, { compact: true })}
+          icon={Trophy}
+          hint={`${currency(trend.at(-1)?.won ?? 0, { compact: true })} this month`}
+        />
+        <StatCard
+          label="Total leads"
+          value={stats.totalLeads ?? 0}
+          icon={Users}
+          trend={leadTrend}
+          hint="vs last month"
+        />
+        <StatCard
+          label="Win rate"
+          value={`${stats.conversionRate ?? 0}%`}
+          icon={Target}
+          hint={`${stats.openTasks ?? 0} open follow-ups`}
+        />
+      </div>
 
-          <Card className="p-5">
-            <p className="text-sm text-ink-soft">Weekly Revenue</p>
-            <div className="mt-2 flex items-end justify-between gap-2">
-              <p className="font-display text-2xl font-bold text-ink">
-                {currency(stats.revenueWon, { compact: true })}
-              </p>
-              <Badge className="bg-brand-50 text-brand-700">
-                <ArrowUpRight className="h-3 w-3" /> 12.8%
-              </Badge>
-            </div>
-          </Card>
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+        <Card className="p-6 lg:col-span-8">
+          <SectionHeading
+            icon={BarChart3}
+            title="Lead Acquisition"
+            subtitle={range === "monthly" ? "New leads per month" : "New leads per year"}
+            action={
+              <Tabs
+                value={range}
+                onChange={setRange}
+                tabs={[
+                  { value: "monthly", label: "Monthly" },
+                  { value: "annually", label: "Annually" },
+                ]}
+              />
+            }
+          />
+          <div className="mt-4">
+            <EngagementChart
+              trend={range === "monthly" ? trend : leadsByYear(leads)}
+              xKey={range === "monthly" ? "month" : "year"}
+            />
+          </div>
+        </Card>
 
-          {/* Conversion stat */}
-          <Card className="p-6">
-            <SectionHeading icon={Target} title="Conversion" subtitle="Win rate" />
-            <div className="mt-4 flex items-end gap-2">
-              <p className="font-display text-3xl font-bold text-ink">
-                {stats.conversionRate ?? 0}
-                <span className="text-xl text-ink-soft">%</span>
-              </p>
-              <Badge className="mb-1 bg-brand-50 text-brand-700">
-                <ArrowUpRight className="h-3 w-3" /> 4.1%
-              </Badge>
-            </div>
-            <p className="mt-1 text-sm text-ink-soft">
-              {stats.totalLeads ?? 0} leads · {stats.openTasks ?? 0} open tasks
-            </p>
-          </Card>
+        <Card className="flex flex-col p-6 lg:col-span-4">
+          <SectionHeading title="Closed Revenue" subtitle="Won deals, last 6 months" to="/pipeline" />
+          <p className="mt-5 text-xs font-semibold uppercase tracking-[0.08em] text-ink-soft">Total won</p>
+          <p className="text-3xl font-semibold tracking-tight text-ink">{currency(stats.revenueWon)}</p>
+          <div className="mt-auto">
+            <BalanceChart trend={trend} />
+          </div>
+        </Card>
 
+        <Card className="p-6 lg:col-span-8">
+          <SectionHeading title="Recent Lead Activity" subtitle="Latest updates across your leads" to="/leads" />
+          <div className="mt-4">
+            <ActivityTable leads={data?.recentLeads || []} />
+          </div>
+        </Card>
+
+        <div className="lg:col-span-4">
           <UpcomingTasks tasks={tasks} />
-          <TopContactsCard contacts={contacts} />
         </div>
 
-        {/* ── Center column ─────────────────────────────── */}
-        <div className="space-y-5 lg:col-span-6">
-          <Card className="p-6">
-            <SectionHeading
-              icon={CreditCard}
-              title="Pipeline Engagement"
-              subtitle="New leads per month"
-              action={
-                <Tabs
-                  value={range}
-                  onChange={setRange}
-                  tabs={[
-                    { value: "monthly", label: "Monthly" },
-                    { value: "annually", label: "Annually" },
-                  ]}
-                />
-              }
-            />
-            <div className="mt-4">
-              <EngagementChart trend={data?.trend || []} />
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <SectionHeading
-              title="Lead Activity"
-              subtitle="Recent lead movements"
-              to="/leads"
-            />
-            <div className="mt-4">
-              <ActivityTable leads={data?.recentLeads || []} />
-            </div>
-          </Card>
-
-          <PipelineByStage pipeline={data?.pipeline || []} />
-        </div>
-
-        {/* ── Right column ──────────────────────────────── */}
-        <div className="space-y-5 lg:col-span-3">
-          {/* Revenue / balance card */}
-          <Card className="p-6">
-            <SectionHeading title="Revenue Goal" subtitle="Closed-won total" to="/pipeline" />
-            <p className="mt-4 text-center text-sm text-ink-soft">Total Won</p>
-            <p className="text-center font-display text-3xl font-bold tracking-tight text-ink">
-              {currency(stats.revenueWon)}
-            </p>
-            <BalanceChart trend={data?.trend || []} />
-            <div className="mt-4 flex items-center gap-2">
-              <Link
-                to="/leads"
-                className="brand-gradient brand-gradient-hover inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-full text-sm font-semibold text-white transition"
-              >
-                <Plus className="h-4 w-4" /> Add Lead
-              </Link>
-              <Link
-                to="/tasks"
-                className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-line text-sm font-medium text-ink transition hover:bg-surface-muted"
-              >
-                <CheckCircle2 className="h-4 w-4" /> Task
-              </Link>
-            </div>
-          </Card>
-
-          <AiInsightsCard />
+        <PipelineByStage pipeline={data?.pipeline || []} className="lg:col-span-4" />
+        <div className="lg:col-span-4">
           <LeadsBySource leads={leads} />
+        </div>
+        <div className="lg:col-span-4">
           <TopDeals leads={leads} />
+        </div>
+
+        <div className="lg:col-span-8">
+          <AiInsightsCard />
+        </div>
+        <div className="lg:col-span-4">
+          <TopContactsCard contacts={contacts} />
         </div>
       </div>
     </div>
@@ -263,7 +273,7 @@ function LeadsBySource({ leads }) {
   const dataset = Object.entries(grouped).map(([name, value]) => ({ name, value }));
 
   return (
-    <Card className="p-6">
+    <Card className="h-full p-6">
       <SectionHeading icon={PieIcon} title="Leads by Source" subtitle="Where leads come from" />
       {dataset.length === 0 ? (
         <p className="py-10 text-center text-sm text-ink-soft">No leads yet.</p>
@@ -324,7 +334,7 @@ function UpcomingTasks({ tasks }) {
     .slice(0, 4);
 
   return (
-    <Card className="flex flex-col p-6">
+    <Card className="flex h-full flex-col p-6">
       <SectionHeading
         icon={CalendarClock}
         title="Upcoming Follow-ups"
@@ -332,7 +342,7 @@ function UpcomingTasks({ tasks }) {
         to="/tasks"
       />
       {upcoming.length === 0 ? (
-        <p className="py-8 text-center text-sm text-ink-soft">You're all caught up 🎉</p>
+        <p className="py-8 text-center text-sm text-ink-soft">No upcoming follow-ups.</p>
       ) : (
         <ul className="mt-4 space-y-3">
           {upcoming.map((t) => {
@@ -342,7 +352,7 @@ function UpcomingTasks({ tasks }) {
                 <span
                   className={cn(
                     "mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg",
-                    overdue ? "bg-rose-50 text-rose-600" : "bg-brand-50 text-brand-600"
+                    overdue ? "bg-rose-50 text-rose-600" : "bg-pigeon-100 text-pigeon-600"
                   )}
                 >
                   {overdue ? (
@@ -376,7 +386,7 @@ function TopDeals({ leads }) {
     .slice(0, 5);
 
   return (
-    <Card className="flex flex-col p-6">
+    <Card className="flex h-full flex-col p-6">
       <SectionHeading icon={Trophy} title="Top Open Deals" subtitle="Biggest active opportunities" to="/leads" />
       {deals.length === 0 ? (
         <p className="py-8 text-center text-sm text-ink-soft">No open deals yet.</p>
@@ -413,23 +423,31 @@ function TopDeals({ leads }) {
 }
 
 /* ── Engagement bar chart with a highlighted peak + floating bubble ──── */
-function EngagementChart({ trend }) {
+function leadsByYear(leads) {
+  const counts = {};
+  for (const l of leads) {
+    const y = new Date(l.createdAt).getFullYear();
+    counts[y] = (counts[y] || 0) + 1;
+  }
+  return Object.keys(counts).sort().map((year) => ({ year, leads: counts[year] }));
+}
+
+function EngagementChart({ trend, xKey = "month" }) {
   const counts = trend.map((t) => t.leads);
   const max = Math.max(...counts, 1);
   const maxIndex = counts.indexOf(max);
   const prev = maxIndex > 0 ? counts[maxIndex - 1] : 0;
-  const growth = prev > 0 ? Math.round(((max - prev) / prev) * 1000) / 10 : 17.8;
+  const growth = prev > 0 ? Math.round(((max - prev) / prev) * 1000) / 10 : null;
 
-  // Custom label: render a rounded "+x%" bubble above the tallest bar only.
+  // Custom label: a "+x%" flag above the tallest bar only.
   const renderPeak = (props) => {
     const { x, y, width, index } = props;
-    if (index !== maxIndex) return null;
+    if (index !== maxIndex || growth === null) return null;
     const cx = x + width / 2;
     return (
       <g>
-        <circle cx={cx} cy={y} r={5} fill="#0369a1" stroke="#fff" strokeWidth={2} />
-        <rect x={cx - 26} y={y - 34} width={52} height={22} rx={11} fill="#0369a1" />
-        <text x={cx} y={y - 19} textAnchor="middle" fontSize="11" fontWeight="700" fill="#fff">
+        <rect x={cx - 28} y={y - 30} width={56} height={22} rx={4} fill={C.brandDark} />
+        <text x={cx} y={y - 15} textAnchor="middle" fontSize="11" fontWeight="600" fill={C.lime}>
           +{growth}%
         </text>
       </g>
@@ -437,27 +455,28 @@ function EngagementChart({ trend }) {
   };
 
   return (
-    <ResponsiveContainer width="100%" height={280}>
-      <BarChart data={trend} barCategoryGap="28%" margin={{ top: 30 }}>
-        <CartesianGrid vertical={false} stroke="#e8eef3" strokeDasharray="4 4" />
+    <ResponsiveContainer width="100%" height={300}>
+      <BarChart data={trend} barCategoryGap="30%" margin={{ top: 34 }}>
+        <CartesianGrid vertical={false} stroke={C.grid} strokeDasharray="3 3" />
         <XAxis
-          dataKey="month"
-          axisLine={false}
+          dataKey={xKey}
+          axisLine={{ stroke: C.grid }}
           tickLine={false}
-          tick={{ fill: "#64748b", fontSize: 12 }}
+          tick={{ fill: C.tick, fontSize: 12 }}
           dy={6}
         />
         <YAxis
           axisLine={false}
           tickLine={false}
-          tick={{ fill: "#64748b", fontSize: 12 }}
+          tick={{ fill: C.tick, fontSize: 12 }}
           width={30}
+          allowDecimals={false}
           tickFormatter={(v) => (v >= 1000 ? `${v / 1000}k` : v)}
         />
-        <Tooltip cursor={{ fill: "#f1f5f9" }} content={<ChartTooltip unit=" leads" />} />
-        <Bar dataKey="leads" radius={[14, 14, 14, 14]} maxBarSize={42} label={renderPeak}>
+        <Tooltip cursor={{ fill: C.hover }} content={<ChartTooltip unit=" leads" />} />
+        <Bar dataKey="leads" radius={[4, 4, 0, 0]} maxBarSize={48} label={renderPeak}>
           {trend.map((t, i) => (
-            <Cell key={i} fill={i === maxIndex ? "#0369a1" : "#bae6fd"} />
+            <Cell key={i} fill={i === maxIndex ? C.lime : C.brand} />
           ))}
         </Bar>
       </BarChart>
@@ -467,16 +486,16 @@ function EngagementChart({ trend }) {
 
 function BalanceChart({ trend }) {
   return (
-    <ResponsiveContainer width="100%" height={120}>
+    <ResponsiveContainer width="100%" height={150}>
       <AreaChart data={trend} margin={{ top: 14, right: 0, left: 0, bottom: 0 }}>
         <defs>
           <linearGradient id="balance" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#0ea5e9" stopOpacity={0.3} />
-            <stop offset="100%" stopColor="#0ea5e9" stopOpacity={0} />
+            <stop offset="0%" stopColor={C.brand} stopOpacity={0.28} />
+            <stop offset="100%" stopColor={C.brand} stopOpacity={0} />
           </linearGradient>
         </defs>
         <Tooltip content={<ChartTooltip prefix="$" />} />
-        <Area type="monotone" dataKey="won" stroke="#0284c7" strokeWidth={2.5} fill="url(#balance)" />
+        <Area type="monotone" dataKey="won" stroke={C.brand} strokeWidth={2} fill="url(#balance)" />
       </AreaChart>
     </ResponsiveContainer>
   );
@@ -485,7 +504,7 @@ function BalanceChart({ trend }) {
 function ChartTooltip({ active, payload, label, prefix = "", unit = "" }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-xl border border-line bg-surface px-3 py-2 shadow-[var(--shadow-pop)]">
+    <div className="rounded-md border border-line bg-surface px-3 py-2 shadow-[var(--shadow-pop)]">
       <p className="text-xs font-medium text-ink-soft">{label}</p>
       <p className="text-sm font-semibold text-ink">
         {prefix}
@@ -558,7 +577,7 @@ function TopContactsCard({ contacts }) {
   const overflow = Math.max(contacts.length - top.length, 0);
 
   return (
-    <Card className="p-6">
+    <Card className="h-full p-6">
       <SectionHeading title="Top Contacts" subtitle="Your key relationships" to="/contacts" />
       {contacts.length === 0 ? (
         <p className="mt-4 text-sm text-ink-soft">No contacts yet.</p>
@@ -598,17 +617,17 @@ function DashboardSkeleton() {
       <Skeleton className="h-12 w-80" />
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
         <div className="space-y-5 lg:col-span-3">
-          <Skeleton className="h-64 rounded-3xl" />
-          <Skeleton className="h-24 rounded-3xl" />
+          <Skeleton className="h-64 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
         </div>
         <div className="space-y-5 lg:col-span-6">
-          <Skeleton className="h-80 rounded-3xl" />
-          <Skeleton className="h-64 rounded-3xl" />
+          <Skeleton className="h-80 rounded-xl" />
+          <Skeleton className="h-64 rounded-xl" />
         </div>
         <div className="space-y-5 lg:col-span-3">
-          <Skeleton className="h-56 rounded-3xl" />
-          <Skeleton className="h-32 rounded-3xl" />
-          <Skeleton className="h-32 rounded-3xl" />
+          <Skeleton className="h-56 rounded-xl" />
+          <Skeleton className="h-32 rounded-xl" />
+          <Skeleton className="h-32 rounded-xl" />
         </div>
       </div>
     </div>
